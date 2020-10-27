@@ -2,21 +2,30 @@ package com.example.foodcourt.view
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.webkit.CookieManager
 import android.webkit.CookieSyncManager
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.foodcourt.R
+import com.example.foodcourt.Utils.RecyclerViewAdapter
+import com.example.foodcourt.ViewModel.LoadDataClass
 import com.facebook.FacebookSdk
 import com.facebook.applinks.AppLinkData
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -24,6 +33,7 @@ import com.google.firebase.remoteconfig.ktx.get
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.onesignal.OneSignal
+import okhttp3.HttpUrl
 
 
 /*
@@ -37,13 +47,13 @@ import com.onesignal.OneSignal
 * */
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var recyclerView: RecyclerView
     private lateinit var remoteConfig: FirebaseRemoteConfig
-    private lateinit var base_url:Uri
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.web_view)
+        setContentView(R.layout.activity_main)
         FacebookSdk.setAutoInitEnabled(true)
         FacebookSdk.fullyInitialize()
         AppLinkData.fetchDeferredAppLinkData(
@@ -53,32 +63,36 @@ class MainActivity : AppCompatActivity() {
                 Log.i("TAG","${appLinkData.targetUri}")
                 fetchWelcome(appLinkData.targetUri.toString())
             } else {
+
                 fetchWelcome(appLinkData?.targetUri.toString())
+
             }
         }
-//        var manager: FragmentManager = supportFragmentManager
-//        var loadData:LoadDataClass
-//        recyclerView = this.findViewById<RecyclerView>(R.id.main_recycler)
-//        loadData = ViewModelProviders.of(this).get(LoadDataClass::class.java)
-//        loadData.loadData()
-//        loadData.simpleLiveData.observe(this,Observer{
-//
-//            var adapter1 =  it?.let { it1 -> RecyclerViewAdapter(it1,manager) }
-//            recyclerView.setHasFixedSize(true)
-//            val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(getApplicationContext())
-//            recyclerView.layoutManager = layoutManager
-//            recyclerView.setAdapter(adapter1)
-//        })
-//
-//        /*не знал как и куда вставить webView и поэтому решил просто сделать кнопку перехода*/
-//        var intent = Intent(this,WebViewActivity::class.java)
-//
-//        var fab = findViewById<FloatingActionButton>(R.id.fab)
-//        fab.setOnClickListener(object : View.OnClickListener{
-//            override fun onClick(v: View?) {
-//                startActivity(intent)
-//            }
-//        })
+
+
+        var manager: FragmentManager = supportFragmentManager
+        var loadData: LoadDataClass
+        recyclerView = this.findViewById<RecyclerView>(R.id.main_recycler)
+        loadData = ViewModelProviders.of(this).get(LoadDataClass::class.java)
+        loadData.loadData()
+        loadData.simpleLiveData.observe(this, Observer{
+
+            var adapter1 =  it?.let { it1 -> RecyclerViewAdapter(it1,manager) }
+            recyclerView.setHasFixedSize(true)
+            val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(getApplicationContext())
+            recyclerView.layoutManager = layoutManager
+            recyclerView.setAdapter(adapter1)
+        })
+
+        /*не знал как и куда вставить webView и поэтому решил просто сделать кнопку перехода*/
+        var intent = Intent(this,WebViewActivity::class.java)
+
+        var fab = findViewById<FloatingActionButton>(R.id.fab)
+        fab.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(v: View?) {
+                startActivity(intent)
+            }
+        })
         val channelId = getString(R.string.default_notification_channel_id)
         val channelName = getString(R.string.default_notification_channel_name)
         val notificationManager = getSystemService(NotificationManager::class.java)
@@ -125,9 +139,12 @@ class MainActivity : AppCompatActivity() {
     }
     fun fetchWelcome(deepLinkUrl:String){
         var remote:Uri
-        var query = Uri.parse(deepLinkUrl)
+        var query:Uri = Uri.parse(deepLinkUrl)
         var mainUrl:String
         var url:Uri
+        var builder: Uri.Builder
+
+        var intent = Intent(this,WebViewActivity::class.java)
 
         remoteConfig = Firebase.remoteConfig
         var configSettings = remoteConfigSettings {
@@ -149,23 +166,13 @@ class MainActivity : AppCompatActivity() {
         val baseUrl = remoteConfig[LOADING_PHASE].asString()
         remote = Uri.parse(baseUrl)
 
-        if(deepLinkUrl == null || deepLinkUrl.equals("") || deepLinkUrl.equals("null")){
-            url = builderUrl(base_url,base_url.query.toString())
-            var t = Uri.parse(url.query)
-            var r = t.query
-            t.query
+        if(deepLinkUrl == null || deepLinkUrl == "null"){
+            intent.putExtra("URL",builderUrl(remote,remote.query.toString()))
         }else{
-            Log.i("DEEP link","$deepLinkUrl")
-            url = builderUrl(base_url,query.query.toString())
+            intent.putExtra("URL",builderUrl(remote,query.toString()))
         }
-        Log.i("Ready Url","$url")
 
-        CookieSyncManager.createInstance(this)
-        val cookieManager: CookieManager = CookieManager.getInstance()
-        val webview = WebView(this)
-        webview.getSettings().setJavaScriptEnabled(true);
-        cookieManager.setAcceptCookie(true)
-        webview.loadUrl("google.com")
+
     }
     private fun builderUrl(base:Uri,query:String):Uri{
         var builder:Uri.Builder = Uri.Builder()

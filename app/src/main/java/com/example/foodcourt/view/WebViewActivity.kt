@@ -1,5 +1,6 @@
 package com.example.foodcourt.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.webkit.CookieManager
@@ -24,12 +25,17 @@ class WebViewActivity(): AppCompatActivity() {
         // и не совсем понятно "сделать webView на телефоне,а не встроенное"
         //я сделал эту работу довольно быстро,за день,я смогу исправить если ошибки будут сильно глобальные
 
+        //var intent = Intent(this,MainActivity::class.java)
 
+//       var t = intent.getStringExtra("URL")
+//        var g = "s"
         setContentView(R.layout.web_view)
         CookieSyncManager.createInstance(this)
         val cookieManager: CookieManager = CookieManager.getInstance()
         val webview = WebView(this)
-        webview.getSettings().setJavaScriptEnabled(true);
+        webview.settings.javaScriptEnabled = true
+        webview.settings.domStorageEnabled = true
+        webview.settings.databaseEnabled = true
         cookieManager.setAcceptCookie(true)
         webview.loadUrl("https://www.nytimes.com/privacy/privacy-policy");
     }
