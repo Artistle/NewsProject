@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.example.foodcourt.R
-import com.example.foodcourt.View.MainActivity
+import com.example.foodcourt.view.MainActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 

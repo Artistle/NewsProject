@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.foodcourt.Model.ModelNews
 import com.example.foodcourt.R
-import com.example.foodcourt.View.AlertDialog
+import com.example.foodcourt.view.AlertDialog
 
 class RecyclerViewAdapter(var listNews: ModelNews,var fragmentManager: FragmentManager): RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
     var mainList = listNews.results
