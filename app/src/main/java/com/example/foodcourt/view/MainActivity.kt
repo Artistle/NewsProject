@@ -8,23 +8,25 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.webkit.CookieManager
-import android.webkit.CookieSyncManager
-import android.webkit.WebView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.foodcourt.Model.ModelNews
 import com.example.foodcourt.R
 import com.example.foodcourt.Utils.RecyclerViewAdapter
+import com.example.foodcourt.ViewModel.DeepLink
 import com.example.foodcourt.ViewModel.LoadDataClass
+import com.example.foodcourt.ViewModel.LoadDeepLink
 import com.facebook.FacebookSdk
 import com.facebook.applinks.AppLinkData
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
@@ -33,7 +35,7 @@ import com.google.firebase.remoteconfig.ktx.get
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.onesignal.OneSignal
-import okhttp3.HttpUrl
+import java.lang.Exception
 
 
 /*
@@ -50,61 +52,36 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var remoteConfig: FirebaseRemoteConfig
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        Log.d("Lyficicle","OnCreate")
+
         FacebookSdk.setAutoInitEnabled(true)
         FacebookSdk.fullyInitialize()
-        AppLinkData.fetchDeferredAppLinkData(
-                this@MainActivity
-        ) { appLinkData ->
-            if (appLinkData != null || appLinkData?.targetUri != null) {
-                Log.i("TAG","${appLinkData.targetUri}")
-                fetchWelcome(appLinkData.targetUri.toString())
-            } else {
-
-                fetchWelcome(appLinkData?.targetUri.toString())
-
-            }
+        AppLinkData.fetchDeferredAppLinkData(this@MainActivity) { appLinkData ->
+            Log.i("TAG","${appLinkData?.targetUri}")
+            Log.d("Lyficicle","deepLink")
+            fetchWelcome(appLinkData?.targetUri.toString())
         }
 
 
-        var manager: FragmentManager = supportFragmentManager
-        var loadData: LoadDataClass
-        recyclerView = this.findViewById<RecyclerView>(R.id.main_recycler)
-        loadData = ViewModelProviders.of(this).get(LoadDataClass::class.java)
-        loadData.loadData()
-        loadData.simpleLiveData.observe(this, Observer{
-
-            var adapter1 =  it?.let { it1 -> RecyclerViewAdapter(it1,manager) }
-            recyclerView.setHasFixedSize(true)
-            val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(getApplicationContext())
-            recyclerView.layoutManager = layoutManager
-            recyclerView.setAdapter(adapter1)
-        })
+//        var manager: FragmentManager = supportFragmentManager
+//        var loadData: LoadDataClass
+//        recyclerView = this.findViewById<RecyclerView>(R.id.main_recycler)
+//        loadData = ViewModelProviders.of(this).get(LoadDataClass::class.java)
+//        loadData.loadData()
+//        loadData.simpleLiveData.observe(this, Observer{
+//
+//            var adapter1 =  it?.let { it1 -> RecyclerViewAdapter(it1,manager) }
+//            recyclerView.setHasFixedSize(true)
+//            val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(getApplicationContext())
+//            recyclerView.layoutManager = layoutManager
+//            recyclerView.setAdapter(adapter1)
+//        })
 
         /*не знал как и куда вставить webView и поэтому решил просто сделать кнопку перехода*/
-        var intent = Intent(this,WebViewActivity::class.java)
-
-        var fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener(object : View.OnClickListener{
-            override fun onClick(v: View?) {
-                startActivity(intent)
-            }
-        })
-        val channelId = getString(R.string.default_notification_channel_id)
-        val channelName = getString(R.string.default_notification_channel_name)
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        notificationManager?.createNotificationChannel(NotificationChannel(channelId,
-            channelName, NotificationManager.IMPORTANCE_LOW))
-
-        intent.extras?.let {
-            for (key in it.keySet()) {
-                val value = intent.extras?.get(key)
-                Log.d("TAG", "Key: $key Value: $value")
-            }
-        }
 
         //я думаю эту логику firebase лучше хранить в viewModel,но поскольку я работаю с ней впервые,оставлю здесь,и буду дальше изучать эту тему
         // и искать архитектурные решения для неё
@@ -140,15 +117,17 @@ class MainActivity : AppCompatActivity() {
     fun fetchWelcome(deepLinkUrl:String){
         var remote:Uri
         var query:Uri = Uri.parse(deepLinkUrl)
-        var mainUrl:String
+        var mainUrl:Uri
         var url:Uri
         var builder: Uri.Builder
 
-        var intent = Intent(this,WebViewActivity::class.java)
+        Log.d("Lyficicle","fetchWelcome")
+
+
 
         remoteConfig = Firebase.remoteConfig
         var configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = 100
+            minimumFetchIntervalInSeconds = 3600
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
         remoteConfig.setDefaultsAsync(R.xml.default_resource_config)
@@ -157,30 +136,41 @@ class MainActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         val updated = task.result
                         Log.i("TAG", "Config params updated: $updated")
-
                     } else {
-                        Log.i("TAG", "Config params updated: ${task.exception}")
+                        Log.i("TAG", "Config params not_updated: ${task.exception}")
                     }
                 }
-
         val baseUrl = remoteConfig[LOADING_PHASE].asString()
         remote = Uri.parse(baseUrl)
+        if(deepLinkUrl == null || deepLinkUrl.equals("null")){
+            mainUrl = builderUrl(remote, remote.query.toString())
+            Log.i("DEEP","$mainUrl")
+            setView("$mainUrl"+"?"+remote.query)
 
-        if(deepLinkUrl == null || deepLinkUrl == "null"){
-            intent.putExtra("URL",builderUrl(remote,remote.query.toString()))
         }else{
-            intent.putExtra("URL",builderUrl(remote,query.toString()))
+            mainUrl = builderUrl(remote, query.authority.toString())
+            Log.i("DEEP","$mainUrl"+" "+"${query.authority}")
+            setView("$mainUrl"+"?"+query.authority)
         }
+        Log.i("TAG","$mainUrl" + "?" +"${remote.query.toString()}")
+        //Log.i("TAG","$mainUrl" + "  ///  " +"${remote.query.toString()}")
 
 
     }
-    private fun builderUrl(base:Uri,query:String):Uri{
+    private fun builderUrl(base:Uri, query: String):Uri{
         var builder:Uri.Builder = Uri.Builder()
         builder.scheme(base.scheme)
         builder.authority(base.host)
         builder.path(base.path)
-        builder.query(query)
+        builder.clearQuery()
+        //builder.query(query)
         return builder.build()
+    }
+    private fun setView(url:String){
+        var intent:Intent = Intent(this,WebViewActivity::class.java)
+        intent.putExtra("URL",url)
+        Log.d("Lyficicle","setView + $url")
+        startActivity(intent)
     }
     companion object{
         private const val LOADING_PHASE = "test_url"

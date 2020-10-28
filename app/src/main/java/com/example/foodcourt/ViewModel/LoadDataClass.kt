@@ -30,6 +30,7 @@ class LoadDataClass : ViewModel() {
             override fun onResponse(call: Call<ModelNews>, response: Response<ModelNews>) {
                 Log.i("succes","${response.body()}")
                 simpleLiveData.setValue(response.body())
+
             }
 
         })

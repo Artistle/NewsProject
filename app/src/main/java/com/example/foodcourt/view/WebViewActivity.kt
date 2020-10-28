@@ -1,46 +1,41 @@
 package com.example.foodcourt.view
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.webkit.CookieManager
-import android.webkit.CookieSyncManager
+import android.webkit.*
 
-import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
 import com.example.foodcourt.R
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.ktx.get
-import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
-
+import kotlinx.android.synthetic.main.web_view.*
 
 class WebViewActivity(): AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // в работе с куки у меня к сожалению опыта нет,что смог на скорую руку,сделал
-        // и не совсем понятно "сделать webView на телефоне,а не встроенное"
-        //я сделал эту работу довольно быстро,за день,я смогу исправить если ошибки будут сильно глобальные
-
-        //var intent = Intent(this,MainActivity::class.java)
-
-//       var t = intent.getStringExtra("URL")
-//        var g = "s"
         setContentView(R.layout.web_view)
+
+
+        var url = intent.getStringExtra("URL")
+        Log.i("TAG URL",url.toString())
         CookieSyncManager.createInstance(this)
         val cookieManager: CookieManager = CookieManager.getInstance()
-        val webview = WebView(this)
+        val webview = findViewById<WebView>(R.id.main_web_view)
+        webview.settings.setAppCacheEnabled(true)
         webview.settings.javaScriptEnabled = true
         webview.settings.domStorageEnabled = true
         webview.settings.databaseEnabled = true
+        webview.settings.setAppCachePath(this.getCacheDir().getPath());
+        webview.settings.setCacheMode(WebSettings.LOAD_DEFAULT)
+
+        var t = webview.settings.cacheMode
+        var r = webview.settings.cacheMode.toString()
         cookieManager.setAcceptCookie(true)
-        webview.loadUrl("https://www.nytimes.com/privacy/privacy-policy");
+        webview.loadUrl(url.toString());
+        webview.setWebViewClient(object : WebViewClient(){} )
+        webview.setWebChromeClient(object:  WebChromeClient() {} )
     }
-
-
 
     companion object{
         private const val TAG = "MainActivity"
