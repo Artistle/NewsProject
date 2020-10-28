@@ -142,16 +142,23 @@ class MainActivity : AppCompatActivity() {
                 }
         val baseUrl = remoteConfig[LOADING_PHASE].asString()
         remote = Uri.parse(baseUrl)
+        var t:String
         if(deepLinkUrl == null || deepLinkUrl.equals("null")){
             mainUrl = builderUrl(remote, remote.query.toString())
             Log.i("DEEP","$mainUrl")
+            t = "$mainUrl"+"?"+remote.query
             setView("$mainUrl"+"?"+remote.query)
-
+            //var webViewActivity = WebViewActivity()
+            //webViewActivity.saveUrl("url is null")
         }else{
             mainUrl = builderUrl(remote, query.authority.toString())
             Log.i("DEEP","$mainUrl"+" "+"${query.authority}")
+            var webViewActivity = WebViewActivity()
+            webViewActivity.saveUrl("$mainUrl"+"?"+query.authority)
             setView("$mainUrl"+"?"+query.authority)
         }
+        var webViewActivity = WebViewActivity()
+        webViewActivity.saveUrl("url is null")
         Log.i("TAG","$mainUrl" + "?" +"${remote.query.toString()}")
         //Log.i("TAG","$mainUrl" + "  ///  " +"${remote.query.toString()}")
 
