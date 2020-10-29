@@ -38,11 +38,6 @@ class MainActivity: AppCompatActivity() {
             var e = it
         })
 
-//        if(check == 0){
-//            check = 2
-//
-//        }
-        faceBook()
     }
     private fun faceBook(){
         FacebookSdk.setAutoInitEnabled(true)
@@ -50,7 +45,8 @@ class MainActivity: AppCompatActivity() {
         AppLinkData.fetchDeferredAppLinkData(this@MainActivity) { appLinkData ->
             Log.i("TAG_DEEP","${appLinkData?.targetUri}")
             Log.d("Lyficicle","deepLink")
-            checkDeepLink(appLinkData?.targetUri.toString())
+            var f = "f"
+            //checkDeepLink(appLinkData?.targetUri.toString())
         }
     }
 
