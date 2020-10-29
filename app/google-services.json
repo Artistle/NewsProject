@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "105474391971",
-    "firebase_url": "https://newsproject-ce79a.firebaseio.com",
-    "project_id": "newsproject-ce79a",
-    "storage_bucket": "newsproject-ce79a.appspot.com"
+    "project_number": "622496314883",
+    "firebase_url": "https://bigluckgame.firebaseio.com",
+    "project_id": "bigluckgame",
+    "storage_bucket": "bigluckgame.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:105474391971:android:72215a91976957d9992416",
+        "mobilesdk_app_id": "1:622496314883:android:ca16c9f31c33aec9d64036",
         "android_client_info": {
-          "package_name": "com.example.foodcourt"
+          "package_name": "com.bigluckgame.sliopands"
         }
       },
       "oauth_client": [
         {
-          "client_id": "105474391971-dsvjmhro12hbspj11gf6osk3sjae5eog.apps.googleusercontent.com",
+          "client_id": "622496314883-j3r9lp5qqotno48tvhaad741fe5emfep.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDVZzZniG7bmJ24J40zfYUnD46kIqRP1iA"
+          "current_key": "AIzaSyA-LdtYXrx6DinpFrviyjGa0-67jKN91S0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "105474391971-dsvjmhro12hbspj11gf6osk3sjae5eog.apps.googleusercontent.com",
+              "client_id": "622496314883-j3r9lp5qqotno48tvhaad741fe5emfep.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -1,4 +1,4 @@
-package com.example.foodcourt
+package com.example.sliopands
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

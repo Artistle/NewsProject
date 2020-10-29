@@ -1,4 +1,4 @@
-package com.example.foodcourt
+package com.example.sliopands
 
 import org.junit.Test
 

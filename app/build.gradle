@@ -30,7 +30,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.foodcourt"
+        applicationId "com.bigluckgame.sliopands"
         minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
