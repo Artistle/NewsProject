@@ -6,6 +6,7 @@ import android.util.Log
 import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import com.bigluckgame.sliopands.R
+import com.onesignal.OneSignal
 
 
 class WebViewActivity(): AppCompatActivity() {
@@ -15,7 +16,7 @@ class WebViewActivity(): AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.web_view)
-
+        oneS()
         var url = intent.getStringExtra("URL")
 
         CookieSyncManager.createInstance(this)
@@ -45,6 +46,13 @@ class WebViewActivity(): AppCompatActivity() {
         var prefEditor = settings.edit()
         prefEditor.putString("URL_SETTINGS", url)
         prefEditor.apply()
+    }
+    fun oneS(){
+        OneSignal.setLogLevel(OneSignal.LOG_LEVEL.VERBOSE, OneSignal.LOG_LEVEL.NONE);
+        OneSignal.startInit(this)
+                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                .unsubscribeWhenNotificationsAreDisabled(true)
+                .init();
     }
 
     companion object{

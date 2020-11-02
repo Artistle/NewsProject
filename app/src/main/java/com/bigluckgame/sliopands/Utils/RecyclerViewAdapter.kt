@@ -5,13 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bigluckgame.sliopands.Model.ModelNews
 import com.bigluckgame.sliopands.R
-import com.bigluckgame.sliopands.view.AlertDialog
 
 class RecyclerViewAdapter(var listNews: ModelNews): RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
     var mainList = listNews.results

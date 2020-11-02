@@ -6,34 +6,32 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bigluckgame.sliopands.R
+import com.bigluckgame.sliopands.Utils.Timer
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.get
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 
-class LoadFirebase:ViewModel() {
+class LoadFirebase():ViewModel() {
     val simpleLiveData = MutableLiveData<String>()
     var remoteConfig = Firebase.remoteConfig
     var configSettings = remoteConfigSettings {
-        minimumFetchIntervalInSeconds = 50
+        minimumFetchIntervalInSeconds = 3600
     }
-
-    fun load(context: Activity){
-
-
+    fun load(context:Activity){
         remoteConfig.setConfigSettingsAsync(configSettings)
         remoteConfig.setDefaultsAsync(R.xml.default_resource_config)
         remoteConfig.fetchAndActivate()
             .addOnCompleteListener(context) { task ->
             if (task.isSuccessful) {
                 val updated = task.result
+                var url = remoteConfig[LOADING_PHASE].asString()
+                simpleLiveData.setValue(decoderUrl(url))
                 Log.i("TAG", "Config params updated: $updated")
             } else {
                 Log.i("TAG", "Config params not_updated: ${task.exception}")
             }
-
         }
-
         var url = remoteConfig[LOADING_PHASE].asString()
         simpleLiveData.setValue(decoderUrl(url))
         Log.i("TAGG","$remoteConfig[LOADING_PHASE]")

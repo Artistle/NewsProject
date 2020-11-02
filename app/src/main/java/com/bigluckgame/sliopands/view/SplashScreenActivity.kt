@@ -27,7 +27,8 @@ class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.splash_screen_activity)
+        oneS()
         //var manager: FragmentManager = supportFragmentManager
         var loadData: LoadDataClass
         recyclerView = this.findViewById<RecyclerView>(R.id.main_recycler)
@@ -41,15 +42,16 @@ class SplashScreenActivity : AppCompatActivity() {
             recyclerView.layoutManager = layoutManager
             recyclerView.setAdapter(adapter1)
         })
+
+    }
+    fun oneS(){
+        OneSignal.setLogLevel(OneSignal.LOG_LEVEL.VERBOSE, OneSignal.LOG_LEVEL.NONE);
+        OneSignal.startInit(this)
+                .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
+                .unsubscribeWhenNotificationsAreDisabled(true)
+                .init();
     }
 
-//    fun oneS(){
-//        OneSignal.setLogLevel(OneSignal.LOG_LEVEL.VERBOSE, OneSignal.LOG_LEVEL.NONE);
-//        OneSignal.startInit(this)
-//            .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
-//            .unsubscribeWhenNotificationsAreDisabled(true)
-//            .init();
-//    }
 }
 
 
